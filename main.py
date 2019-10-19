@@ -3,6 +3,8 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
 import numpy as np
 import json
+import os
+import datetime
 
 
 def extract_id_and_text(json_object):
@@ -26,8 +28,20 @@ def make_pipeline():
     return Pipeline([
         ('vect', CountVectorizer()),
         ('tfidf', TfidfTransformer()),
-        ('cls', KMeans(n_clusters=2))
+        ('cls', KMeans(n_clusters=50))
     ])
+
+
+def collect_results():
+    results = {a: [] for a in range(50)}
+    for [line, cluster] in zip(raw_lines, clustered):
+        results.get(cluster).append(line)
+    results_dir = "results_" + datetime.datetime.today().isoformat()
+    os.mkdir(results_dir)
+    for cluster_number, cluster_lines in results.items():
+        with open(results_dir + "/" + str(cluster_number) + ".txt", "w+") as f:
+            for row in cluster_lines:
+                f.write(row + "\n")
 
 
 if __name__ == '__main__':
@@ -37,5 +51,5 @@ if __name__ == '__main__':
     pipeline = make_pipeline()
 
     clustered = pipeline.fit_predict(data)
-    print(raw_lines[:10])
-    print(clustered[:10])
+
+    collect_results()
