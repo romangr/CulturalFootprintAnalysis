@@ -7,11 +7,13 @@ import json
 import os
 import datetime
 
+
 def read_stop_words():
     with open('stopwords.json', 'r') as data_file:
         json_data = data_file.read()
 
     return get_stop_words('russian') + json.loads(json_data)
+
 
 def extract_id_and_text(json_object):
     json_dict = json.loads(json_object)
@@ -30,7 +32,7 @@ def read_raw_data():
     return [raw_data_ids, raw_data_lines]
 
 
-def make_pipeline():
+def make_pipeline(stop_words):
     return Pipeline([
         ('vect', CountVectorizer(stop_words=stop_words)),
         ('tfidf', TfidfTransformer()),
@@ -38,7 +40,7 @@ def make_pipeline():
     ])
 
 
-def collect_results():
+def collect_results(raw_lines, clustered):
     results = {a: [] for a in range(50)}
     for [line, cluster] in zip(raw_lines, clustered):
         results.get(cluster).append(line)
@@ -50,14 +52,18 @@ def collect_results():
                 f.write(row + "\n")
 
 
-if __name__ == '__main__':
+def run():
     [ids, raw_lines] = read_raw_data()
     data = np.array(raw_lines)
 
     stop_words = read_stop_words()
 
-    pipeline = make_pipeline()
+    pipeline = make_pipeline(stop_words)
 
     clustered = pipeline.fit_predict(data)
 
-    collect_results()
+    collect_results(raw_lines, clustered)
+
+
+if __name__ == '__main__':
+    run()
