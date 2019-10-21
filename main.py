@@ -1,11 +1,17 @@
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
+from stop_words import get_stop_words
 import numpy as np
 import json
 import os
 import datetime
 
+def read_stop_words():
+    with open('stopwords.json', 'r') as data_file:
+        json_data = data_file.read()
+
+    return get_stop_words('russian') + json.loads(json_data)
 
 def extract_id_and_text(json_object):
     json_dict = json.loads(json_object)
@@ -26,7 +32,7 @@ def read_raw_data():
 
 def make_pipeline():
     return Pipeline([
-        ('vect', CountVectorizer()),
+        ('vect', CountVectorizer(stop_words=stop_words)),
         ('tfidf', TfidfTransformer()),
         ('cls', KMeans(n_clusters=50))
     ])
@@ -47,6 +53,8 @@ def collect_results():
 if __name__ == '__main__':
     [ids, raw_lines] = read_raw_data()
     data = np.array(raw_lines)
+
+    stop_words = read_stop_words()
 
     pipeline = make_pipeline()
 
