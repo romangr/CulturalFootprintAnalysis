@@ -8,6 +8,7 @@ import json
 import os
 import datetime
 
+
 def read_stop_words():
     with open('stopwords.json', 'r') as data_file:
         json_data = data_file.read()
@@ -32,7 +33,7 @@ def read_raw_data():
     return [raw_data_ids, raw_data_lines]
 
 
-def make_pipelines():
+def make_pipelines(stop_words):
     return [
         Pipeline([
             ('vect', CountVectorizer(stop_words=stop_words)),
@@ -47,7 +48,7 @@ def make_pipelines():
     ]
 
 
-def collect_results():
+def collect_results(ids, clusteredResults):
     for clustered in clusteredResults:
         results_dir = "results_" + datetime.datetime.today().isoformat()
         os.mkdir(results_dir)
@@ -56,17 +57,20 @@ def collect_results():
                 f.write(str(cluster) + ":" + str(id) + "\n")
 
 
-if __name__ == '__main__':
+def run():
     [ids, raw_lines] = read_raw_data()
     data = np.array(raw_lines)
 
     stop_words = read_stop_words()
 
-    pipelines = make_pipelines()
+    pipelines = make_pipelines(stop_words)
 
     clusteredResults = []
 
     for pipeline in pipelines:
         clusteredResults.append(pipeline.fit_predict(data))
 
-    collect_results()
+    collect_results(ids, clusteredResults)
+
+if __name__ == '__main__':
+    run()
