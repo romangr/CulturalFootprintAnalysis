@@ -1,4 +1,5 @@
 from sklearn.cluster import KMeans
+from sklearn.cluster import SpectralClustering
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
 from stop_words import get_stop_words
@@ -32,24 +33,28 @@ def read_raw_data():
     return [raw_data_ids, raw_data_lines]
 
 
-def make_pipeline(stop_words):
-    return Pipeline([
-        ('vect', CountVectorizer(stop_words=stop_words)),
-        ('tfidf', TfidfTransformer()),
-        ('cls', KMeans(n_clusters=50))
-    ])
+def make_pipelines(stop_words):
+    return [
+        Pipeline([
+            ('vect', CountVectorizer(stop_words=stop_words)),
+            ('tfidf', TfidfTransformer()),
+            ('cls', KMeans(n_clusters=50))
+        ]),
+        Pipeline([
+            ('vect', CountVectorizer(stop_words=stop_words)),
+            ('tfidf', TfidfTransformer()),
+            ('cls', SpectralClustering(n_clusters=50))
+        ])
+    ]
 
 
-def collect_results(raw_lines, clustered):
-    results = {a: [] for a in range(50)}
-    for [line, cluster] in zip(raw_lines, clustered):
-        results.get(cluster).append(line)
-    results_dir = "results_" + datetime.datetime.today().isoformat()
-    os.mkdir(results_dir)
-    for cluster_number, cluster_lines in results.items():
-        with open(results_dir + "/" + str(cluster_number) + ".txt", "w+") as f:
-            for row in cluster_lines:
-                f.write(row + "\n")
+def collect_results(ids, clusteredResults):
+    for clustered in clusteredResults:
+        results_dir = "results_" + datetime.datetime.today().isoformat()
+        os.mkdir(results_dir)
+        with open(results_dir + "/" + "clustered.data", "w+") as f:
+            for [id, cluster] in zip(ids, clustered):
+                f.write(str(cluster) + ":" + str(id) + "\n")
 
 
 def run():
@@ -58,12 +63,14 @@ def run():
 
     stop_words = read_stop_words()
 
-    pipeline = make_pipeline(stop_words)
+    pipelines = make_pipelines(stop_words)
 
-    clustered = pipeline.fit_predict(data)
+    clusteredResults = []
 
-    collect_results(raw_lines, clustered)
+    for pipeline in pipelines:
+        clusteredResults.append(pipeline.fit_predict(data))
 
+    collect_results(ids, clusteredResults)
 
 if __name__ == '__main__':
     run()
