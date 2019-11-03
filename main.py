@@ -1,12 +1,19 @@
+import datetime
+import json
+import os
+
+import numpy as np
+from pymongo import MongoClient
 from sklearn.cluster import KMeans
 from sklearn.cluster import SpectralClustering
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.pipeline import Pipeline
 from stop_words import get_stop_words
-import numpy as np
-import json
-import os
-import datetime
+
+
+def get_collection():
+    client = MongoClient()
+    return client.cultural.RawRecords
 
 
 def read_stop_words():
@@ -16,20 +23,19 @@ def read_stop_words():
     return get_stop_words('russian') + json.loads(json_data)
 
 
-def extract_id_and_text(json_object):
-    json_dict = json.loads(json_object)
-    return [json_dict['source']['tweetId'], json_dict['data']]
+def extract_id_and_text(record):
+    return [record.get('source').get("tweetId"), str(record.get('data'))]
 
 
-def read_raw_data():
+def read_raw_data(raw_records_collection):
     raw_data_lines = []
     raw_data_ids = []
-    with open("raw.data") as f:
-        for line in f:
-            if "{" in line:
-                id_data = extract_id_and_text(line)
-                raw_data_ids.append(id_data[0])
-                raw_data_lines.append(id_data[1])
+    records = raw_records_collection.find()
+
+    for record in records:
+        id_data = extract_id_and_text(record)
+        raw_data_ids.append(id_data[0])
+        raw_data_lines.append(id_data[1])
     return [raw_data_ids, raw_data_lines]
 
 
@@ -58,7 +64,10 @@ def collect_results(ids, clusteredResults):
 
 
 def run():
-    [ids, raw_lines] = read_raw_data()
+    rawRecordsCollection = get_collection()
+
+    [ids, raw_lines] = read_raw_data(rawRecordsCollection)
+
     data = np.array(raw_lines)
 
     stop_words = read_stop_words()
@@ -71,6 +80,7 @@ def run():
         clusteredResults.append(pipeline.fit_predict(data))
 
     collect_results(ids, clusteredResults)
+
 
 if __name__ == '__main__':
     run()
