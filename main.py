@@ -12,8 +12,13 @@ from stop_words import get_stop_words
 
 
 def get_collection():
-    client = MongoClient()
-    return client.cultural.RawRecords
+    client = MongoClient(
+        host=os.environ['MONGO_HOST'],
+        port=int(os.environ['MONGO_PORT']),
+        username=os.environ['MONGO_USERNAME'],
+        password=os.environ['MONGO_PASSWORD']
+    )
+    return client[os.environ['MONGO_DATABASE']].RawRecords
 
 
 def read_stop_words():
