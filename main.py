@@ -12,8 +12,13 @@ from stop_words import get_stop_words
 
 
 def get_collection():
-    client = MongoClient()
-    return client.cultural.RawRecords
+    client = MongoClient(
+        host=os.environ['MONGO_HOST'],
+        port=int(os.environ['MONGO_PORT']),
+        username=os.environ['MONGO_USERNAME'],
+        password=os.environ['MONGO_PASSWORD']
+    )
+    return client[os.environ['MONGO_DATABASE']].RawRecords
 
 
 def read_stop_words():
@@ -64,9 +69,12 @@ def collect_results(ids, clusteredResults):
 
 
 def run():
+    print("Started " + str(datetime.datetime.today()))
     rawRecordsCollection = get_collection()
 
     [ids, raw_lines] = read_raw_data(rawRecordsCollection)
+
+    print("Read {} lines".format(len(raw_lines)))
 
     data = np.array(raw_lines)
 
@@ -80,6 +88,8 @@ def run():
         clusteredResults.append(pipeline.fit_predict(data))
 
     collect_results(ids, clusteredResults)
+
+    print("Finished " + str(datetime.datetime.today()))
 
 
 if __name__ == '__main__':
