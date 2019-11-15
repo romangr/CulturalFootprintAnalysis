@@ -69,9 +69,12 @@ def collect_results(ids, clusteredResults):
 
 
 def run():
+    print("Started " + str(datetime.datetime.today()))
     rawRecordsCollection = get_collection()
 
     [ids, raw_lines] = read_raw_data(rawRecordsCollection)
+
+    print("Read {} lines".format(len(raw_lines)))
 
     data = np.array(raw_lines)
 
@@ -85,6 +88,8 @@ def run():
         clusteredResults.append(pipeline.fit_predict(data))
 
     collect_results(ids, clusteredResults)
+
+    print("Finished " + str(datetime.datetime.today()))
 
 
 if __name__ == '__main__':
