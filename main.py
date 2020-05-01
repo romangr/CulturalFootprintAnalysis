@@ -1,9 +1,11 @@
 import datetime
 import json
 import os
+import time
 import uuid
 
 import numpy as np
+import schedule as schedule
 from pymongo import MongoClient
 from sklearn.cluster import KMeans
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
@@ -12,11 +14,11 @@ from stop_words import get_stop_words
 
 
 def get_raw_records_collection(client):
-    return os.environ['MONGO_DATABASE'].RawRecords
+    return client[os.environ['MONGO_DATABASE']].RawRecords
 
 
 def get_clusters_collection(client):
-    return os.environ['MONGO_DATABASE'].Clusters
+    return client[os.environ['MONGO_DATABASE']].Clusters
 
 
 def read_stop_words():
@@ -104,4 +106,8 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    print("Starter analysis app")
+    schedule.every(1).minute.do(run)
+    while 1:
+        schedule.run_pending()
+        time.sleep(60)
