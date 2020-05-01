@@ -35,7 +35,8 @@ def extract_id_and_text(record):
 def read_raw_data(raw_records_collection):
     raw_data_lines = []
     raw_data_ids = []
-    records = raw_records_collection.find()
+    week = current_week()
+    records = raw_records_collection.find({"week": week})
 
     for record in records:
         id_data = extract_id_and_text(record)
@@ -44,11 +45,16 @@ def read_raw_data(raw_records_collection):
     return [raw_data_ids, raw_data_lines]
 
 
+def current_week():
+    return str(datetime.datetime.today().isocalendar()[1]) + "-" + str(datetime.datetime.today().year)
+
+
 def make_pipeline(stop_words):
+    number_of_clusters = os.environ['N_CLUSTERS']
     return Pipeline([
             ('vect', CountVectorizer(stop_words=stop_words)),
             ('tfidf', TfidfTransformer()),
-            ('cls', KMeans(n_clusters=50))
+            ('cls', KMeans(n_clusters=int(number_of_clusters)))
         ])
 
 
@@ -69,7 +75,7 @@ def collect_results_to_db(mongo_client, ids, clustered_results):
         for [id, cluster] in zip(ids, clustered):
             if cluster not in cluster_ids:
                 cluster_id = uuid.uuid4()
-                clusters_collection.insert({"_id": cluster_id})
+                clusters_collection.insert({"_id": cluster_id, "week": current_week()})
                 cluster_ids[cluster] = cluster_id
             cluster_id = cluster_ids[cluster]
             raw_records_collection.find_and_modify(query={'_id': id}, update={"$set": {'cluster': cluster_id}}, upsert=False, full_response=False)
@@ -99,7 +105,6 @@ def run():
 
     clustered_results.append(pipeline.fit_predict(data))
 
-    # collect_results_to_files(ids, clustered_results)
     collect_results_to_db(mongo_client, ids, clustered_results)
 
     print("Finished " + str(datetime.datetime.today()))
@@ -107,7 +112,7 @@ def run():
 
 if __name__ == '__main__':
     print("Starter analysis app")
-    schedule.every(1).minute.do(run)
+    schedule.every(1).saturday.at("13:00").do(run)
     while 1:
         schedule.run_pending()
-        time.sleep(60)
+        time.sleep(3600)
