@@ -11,6 +11,4 @@ RUN pip install schedule
 ADD main.py /
 ADD stopwords.json /
 
-CMD ["echo", "test"]
-
 CMD [ "python", "-u", "./main.py" ]
