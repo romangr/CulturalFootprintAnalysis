@@ -1,0 +1,39 @@
+- name: Deploy Cultural Analysis service
+  hosts: all
+  gather_facts: yes
+  vars:
+    timestamp: "{{ ansible_date_time.epoch }}"
+  tasks:
+    - name: Deployment block
+      block:
+        - name: Create deployment folder
+          file:
+            path: ~/deploy-{{ timestamp }}
+            state: directory
+
+        - name: Copy compose file
+          copy:
+            src: ../docker-compose.yml
+            dest: ~/deploy-{{ timestamp }}/docker-compose.yml
+
+        - name: Start up database
+          docker_compose:
+            project_src: ~/deploy-{{ timestamp }}
+            project_name: cultural_footprint
+            services: mongo
+            state: present
+
+        - name: Start up application
+          docker_compose:
+            project_src: ~/deploy-{{ timestamp }}
+            project_name: cultural_footprint
+            services: analysis
+            state: present
+            pull: yes
+#            restarted: true #maybe not needed?
+
+      always:
+        - name: Remove deployment folder
+          file:
+            path: ~/deploy-{{ timestamp }}
+            state: absent
