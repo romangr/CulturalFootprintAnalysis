@@ -46,7 +46,7 @@ def read_raw_data(raw_records_collection):
 
 
 def current_week():
-    return str(datetime.datetime.today().isocalendar()[1]) + "-" + str(datetime.datetime.today().year)
+    return str(datetime.datetime.today().year) + "-" + str(datetime.datetime.today().isocalendar()[1])
 
 
 def make_pipeline(stop_words):
