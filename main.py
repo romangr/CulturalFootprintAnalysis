@@ -115,4 +115,4 @@ if __name__ == '__main__':
     schedule.every(1).saturday.at("13:00").do(run)
     while 1:
         schedule.run_pending()
-        time.sleep(3600)
+        time.sleep(300)
