@@ -34,7 +34,7 @@ services:
         max-file: "3"
 
   analysis:
-    image: docker.pkg.github.com/romangr/culturalfootprintanalysis/culturalfootprintanalysis:${CULTURAL_ANALYSIS_IMAGE:-latest}
+    image: docker.pkg.github.com/romangr/cultural-footprint-analysis/culturalfootprintanalysis:${CULTURAL_ANALYSIS_IMAGE:-latest}
     restart: always
     environment:
       MONGO_HOST: mongo
