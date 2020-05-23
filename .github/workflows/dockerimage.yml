@@ -13,9 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Build the Docker image
-        run: docker login docker.pkg.github.com -u romangr -p ${{ secrets.GITHUB_TOKEN }} && docker build . --file Dockerfile --tag docker.pkg.github.com/romangr/culturalfootprintanalysis/culturalfootprintanalysis:latest
+        run: docker login docker.pkg.github.com -u romangr -p ${{ secrets.GITHUB_TOKEN }} && docker build . --file Dockerfile --tag docker.pkg.github.com/romangr/cultural-footprint-analysis/culturalfootprintanalysis:latest
       - name: Publish the Docker image
-        run: docker push docker.pkg.github.com/romangr/culturalfootprintanalysis/culturalfootprintanalysis:latest
+        run: docker push docker.pkg.github.com/romangr/cultural-footprint-analysis/culturalfootprintanalysis:latest
 
   deploy:
     needs: build
