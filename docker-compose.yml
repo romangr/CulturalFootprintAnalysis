@@ -42,7 +42,7 @@ services:
       MONGO_USERNAME: ${MONGO_USER:-root}
       MONGO_PASSWORD: ${MONGO_PASS:-secret}
       MONGO_DATABASE: cultural
-      N_CLUSTERS: 50
+      N_CLUSTERS: 100
     logging:
       driver: json-file
       options:
