@@ -36,7 +36,9 @@ def read_raw_data(raw_records_collection):
     raw_data_lines = []
     raw_data_ids = []
     week = current_week()
-    records = raw_records_collection.find({"week": week})
+    records = raw_records_collection.find(
+        {"$or": [{"week": week}, {"week": previous_week(), "cluster": None}]}
+    )
 
     for record in records:
         id_data = extract_id_and_text(record)
@@ -47,6 +49,10 @@ def read_raw_data(raw_records_collection):
 
 def current_week():
     return str(datetime.datetime.today().year) + "-" + str(datetime.datetime.today().isocalendar()[1])
+
+
+def previous_week():
+    return str(datetime.datetime.today().year) + "-" + str(datetime.datetime.today().isocalendar()[1] - 1)
 
 
 def make_pipeline(stop_words):
