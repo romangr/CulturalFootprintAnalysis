@@ -18,14 +18,14 @@
 
         - name: Start up database
           docker_compose:
-            project_src: ~/deploy-{{ timestamp }}/cultural-footprint-deploy
+            project_src: ~/deploy-{{ timestamp }}
             project_name: cultural_footprint
             services: mongo
             state: present
 
         - name: Start up application
           docker_compose:
-            project_src: ~/deploy-{{ timestamp }}/cultural-footprint-deploy
+            project_src: ~/deploy-{{ timestamp }}
             project_name: cultural_footprint
             services: analysis
             state: present
