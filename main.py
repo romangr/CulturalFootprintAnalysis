@@ -116,9 +116,17 @@ def run():
     print("Finished " + str(datetime.datetime.today()))
 
 
+def run_logging():
+    try:
+        run()
+    except Exception as e:
+        print(e)
+        raise
+
+
 if __name__ == '__main__':
     print("Starter analysis app")
-    schedule.every(1).saturday.at("14:15").do(run)
+    schedule.every(1).saturday.at("15:00").do(run_logging)
     while 1:
         schedule.run_pending()
         time.sleep(300)
