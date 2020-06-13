@@ -118,7 +118,7 @@ def run():
 
 if __name__ == '__main__':
     print("Starter analysis app")
-    schedule.every(1).saturday.at("13:00").do(run)
+    schedule.every(1).saturday.at("14:15").do(run)
     while 1:
         schedule.run_pending()
         time.sleep(300)
