@@ -31,8 +31,8 @@
             state: present
             pull: yes
 
-#      always:
-#        - name: Remove deployment folder
-#          file:
-#            path: ~/deploy-{{ timestamp }}
-#            state: absent
+      always:
+        - name: Remove deployment folder
+          file:
+            path: ~/deploy-{{ timestamp }}
+            state: absent

@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - bugfix/fix-deploy
 
 jobs:
 
