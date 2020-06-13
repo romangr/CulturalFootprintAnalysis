@@ -11,26 +11,25 @@
             path: ~/deploy-{{ timestamp }}
             state: directory
 
-        - name: Copy compose file
-          copy:
-            src: ../docker-compose.yml
-            dest: ~/deploy-{{ timestamp }}/docker-compose.yml
+        - name: Clone deployment repo
+          git:
+            repo: 'https://github.com/romangr/cultural-footprint-deploy.git'
+            dest: ~/deploy-{{ timestamp }}
 
         - name: Start up database
           docker_compose:
-            project_src: ~/deploy-{{ timestamp }}
+            project_src: ~/deploy-{{ timestamp }}/cultural-footprint-deploy
             project_name: cultural_footprint
             services: mongo
             state: present
 
         - name: Start up application
           docker_compose:
-            project_src: ~/deploy-{{ timestamp }}
+            project_src: ~/deploy-{{ timestamp }}/cultural-footprint-deploy
             project_name: cultural_footprint
             services: analysis
             state: present
             pull: yes
-#            restarted: true #maybe not needed?
 
       always:
         - name: Remove deployment folder
