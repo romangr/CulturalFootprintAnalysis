@@ -35,9 +35,8 @@ def extract_id_and_text(record):
 def read_raw_data(raw_records_collection):
     raw_data_lines = []
     raw_data_ids = []
-    week = current_week()
     records = raw_records_collection.find(
-        {"$or": [{"week": week}, {"week": previous_week(), "cluster": None}]}
+        {"date": {"$lt": (datetime.datetime.now())}, "cluster": None}
     )
 
     for record in records:
@@ -77,11 +76,12 @@ def collect_results_to_db(mongo_client, ids, clustered_results):
     raw_records_collection = get_raw_records_collection(mongo_client)
     clusters_collection = get_clusters_collection(mongo_client)
     cluster_ids = {}
+    today = datetime.date.today()
     for clustered in clustered_results:
         for [id, cluster] in zip(ids, clustered):
             if cluster not in cluster_ids:
                 cluster_id = uuid.uuid4()
-                clusters_collection.insert({"_id": cluster_id, "week": current_week()})
+                clusters_collection.insert({"_id": cluster_id, "week": current_week(), "date": today, "name": str(today.weekday())})
                 cluster_ids[cluster] = cluster_id
             cluster_id = cluster_ids[cluster]
             raw_records_collection.find_and_modify(query={'_id': id}, update={"$set": {'cluster': cluster_id}}, upsert=False, full_response=False)
@@ -126,7 +126,7 @@ def run_logging():
 
 if __name__ == '__main__':
     print("Starter analysis app")
-    schedule.every(1).saturday.at("15:00").do(run_logging)
+    schedule.every(1).day.at("20:00").do(run_logging)
     while 1:
         schedule.run_pending()
         time.sleep(300)
