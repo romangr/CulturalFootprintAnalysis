@@ -76,7 +76,7 @@ def collect_results_to_db(mongo_client, ids, clustered_results):
     raw_records_collection = get_raw_records_collection(mongo_client)
     clusters_collection = get_clusters_collection(mongo_client)
     cluster_ids = {}
-    today = datetime.date.today()
+    today = datetime.datetime.now()
     for clustered in clustered_results:
         for [id, cluster] in zip(ids, clustered):
             if cluster not in cluster_ids:
